@@ -1,6 +1,0 @@
-/home/paintcopter/dev/InfiniTAM_saveTSDF_Tejaswi_fromROS_V2/InfiniTAM/release/Engine/CMakeFiles/Engine.dir
-/home/paintcopter/dev/InfiniTAM_saveTSDF_Tejaswi_fromROS_V2/InfiniTAM/release/ITMLib/CMakeFiles/ITMLib.dir
-/home/paintcopter/dev/InfiniTAM_saveTSDF_Tejaswi_fromROS_V2/InfiniTAM/release/CMakeFiles/InfiniTAM.dir
-/home/paintcopter/dev/InfiniTAM_saveTSDF_Tejaswi_fromROS_V2/InfiniTAM/release/CMakeFiles/InfiniTAM_cli.dir
-/home/paintcopter/dev/InfiniTAM_saveTSDF_Tejaswi_fromROS_V2/InfiniTAM/release/ORUtils/CMakeFiles/ORUtils.dir
-/home/paintcopter/dev/InfiniTAM_saveTSDF_Tejaswi_fromROS_V2/InfiniTAM/release/Utils/CMakeFiles/Utils.dir
