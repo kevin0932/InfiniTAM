@@ -68,6 +68,9 @@ namespace ITMLib
 			const ITMHashEntry *GetEntries(void) const { return hashEntries->GetData(memoryType); }
 			ITMHashEntry *GetEntries(void) { return hashEntries->GetData(memoryType); }
 
+			// Kevin
+			void ClearEntries(unsigned char defaultValue = 0) { hashEntries->Clear(defaultValue); }
+
 			const IndexData *getIndexData(void) const { return hashEntries->GetData(memoryType); }
 			IndexData *getIndexData(void) { return hashEntries->GetData(memoryType); }
 

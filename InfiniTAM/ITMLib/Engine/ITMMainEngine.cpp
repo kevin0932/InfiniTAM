@@ -104,7 +104,8 @@ void ITMMainEngine::SaveSceneToMesh(const char *objFileName)
 {
 	if (mesh == NULL) return;
 	meshingEngine->MeshScene(mesh, scene);
-	mesh->WriteSTL(objFileName);
+	// mesh->WriteSTL(objFileName);
+	 mesh->WritePLY(objFileName);
 }
 
 void ITMMainEngine::ProcessFrame(ITMUChar4Image *rgbImage, ITMShortImage *rawDepthImage, ITMIMUMeasurement *imuMeasurement)
@@ -119,7 +120,9 @@ void ITMMainEngine::ProcessFrame(ITMUChar4Image *rgbImage, ITMShortImage *rawDep
 	trackingController->Track(trackingState, view);
 
 	// fusion
-	if (fusionActive) denseMapper->ProcessFrame(view, trackingState, scene, renderState_live);
+	denseMapper->ProcessFrame(view, trackingState, scene, renderState_live, fusionActive);
+	// if (fusionActive) denseMapper->ProcessFrame(view, trackingState, scene, renderState_live);
+	// else denseMapper->ProcessFrame_FusionDisabled(view, trackingState, scene, renderState_live);
 
 	// raycast to renderState_live for tracking and free visualisation
 	trackingController->Prepare(trackingState, view, renderState_live);
@@ -194,3 +197,34 @@ void ITMMainEngine::turnOnIntegration() { fusionActive = true; }
 void ITMMainEngine::turnOffIntegration() { fusionActive = false; }
 void ITMMainEngine::turnOnMainProcessing() { mainProcessingActive = true; }
 void ITMMainEngine::turnOffMainProcessing() { mainProcessingActive = false; }
+
+///////////////////////////?????????###########################################################?/////////////////////////////////////////////////
+void ITMMainEngine::ProcessLastFrame(ITMUChar4Image *rgbImage, ITMShortImage *rawDepthImage, ITMIMUMeasurement *imuMeasurement)
+{
+	// prepare image and turn it into a depth image
+	if (imuMeasurement==NULL) viewBuilder->UpdateView(&view, rgbImage, rawDepthImage, settings->useBilateralFilter,settings->modelSensorNoise);
+	else viewBuilder->UpdateView(&view, rgbImage, rawDepthImage, settings->useBilateralFilter, imuMeasurement);
+
+	if (!mainProcessingActive) return;
+}
+
+void ITMMainEngine::ProcessFirstFrame(ITMUChar4Image *rgbImage, ITMShortImage *rawDepthImage, ITMIMUMeasurement *imuMeasurement)
+{
+	// prepare image and turn it into a depth image
+	if (imuMeasurement==NULL) viewBuilder->UpdateView(&view, rgbImage, rawDepthImage, settings->useBilateralFilter,settings->modelSensorNoise);
+	else viewBuilder->UpdateView(&view, rgbImage, rawDepthImage, settings->useBilateralFilter, imuMeasurement);
+
+	if (!mainProcessingActive) return;
+
+	std::cout<<"Initial Pose (initialized): "<<trackingState->pose_d->GetM()<<std::endl;
+	// tracking
+	trackingController->Track(trackingState, view);
+	std::cout<<"Initial Pose (tracked): "<<trackingState->pose_d->GetM()<<std::endl;
+
+	// fusion
+	denseMapper->ProcessFrame(view, trackingState, scene, renderState_live, fusionActive);
+	// if (fusionActive) denseMapper->ProcessFrame(view, trackingState, scene, renderState_live);
+
+	// raycast to renderState_live for tracking and free visualisation
+	trackingController->Prepare(trackingState, view, renderState_live);
+}

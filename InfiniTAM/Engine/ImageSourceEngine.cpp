@@ -19,11 +19,30 @@ ImageFileReader::ImageFileReader(const char *calibFilename, const char *rgbImage
 	strncpy(this->rgbImageMask, rgbImageMask, BUF_SIZE);
 	strncpy(this->depthImageMask, depthImageMask, BUF_SIZE);
 
-	currentFrameNo = 0;
+	currentFrameNo = 0; // starting frame no.
 	cachedFrameNo = -1;
 
 	cached_rgb = NULL;
 	cached_depth = NULL;
+
+	// tejaswi (underwater)
+	this->isUnderwater = false;
+}
+
+// tejaswi (underwater)
+ImageFileReader::ImageFileReader(const char *calibFilename, const char *rgbImageMask, const char *depthImageMask, bool underwaterFlag)
+: ImageSourceEngine(calibFilename)
+{
+	strncpy(this->rgbImageMask, rgbImageMask, BUF_SIZE);
+	strncpy(this->depthImageMask, depthImageMask, BUF_SIZE);
+
+	currentFrameNo = 0; // starting frame no.
+	cachedFrameNo = -1;
+
+	cached_rgb = NULL;
+	cached_depth = NULL;
+
+	this->isUnderwater = underwaterFlag;
 }
 
 ImageFileReader::~ImageFileReader()
@@ -43,14 +62,28 @@ void ImageFileReader::loadIntoCache(void)
 
 	char str[2048];
 
+	// tejaswi - made this modification to read mask correctly in windows
+#ifdef _WIN32
+	std::string m = rgbImageMask;
+	m.replace(m.end() - 6, m.end() - 5, "%05");
+	sprintf(str, m.c_str(), currentFrameNo);
+#elif __linux__
 	sprintf(str, rgbImageMask, currentFrameNo);
+#endif
 	if (!ReadImageFromFile(cached_rgb, str)) 
 	{
 		delete cached_rgb; cached_rgb = NULL;
 		printf("error reading file '%s'\n", str);
 	}
 
+	// tejaswi - made this modification to read mask correctly in windows
+#ifdef _WIN32
+	m = depthImageMask;
+	m.replace(m.end() - 6, m.end() - 5, "%05");
+	sprintf(str, m.c_str(), currentFrameNo);
+#elif __linux__
 	sprintf(str, depthImageMask, currentFrameNo);
+#endif
 	if (!ReadImageFromFile(cached_depth, str)) 
 	{
 		delete cached_depth; cached_depth = NULL;

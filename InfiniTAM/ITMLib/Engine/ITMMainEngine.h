@@ -56,7 +56,7 @@ namespace ITMLib
 			IITMVisualisationEngine *visualisationEngine;
 
 			ITMMeshingEngine<ITMVoxel, ITMVoxelIndex> *meshingEngine;
-			ITMMesh *mesh;
+			// ITMMesh *mesh;
 
 			ITMViewBuilder *viewBuilder;		
 			ITMDenseMapper<ITMVoxel,ITMVoxelIndex> *denseMapper;
@@ -73,6 +73,9 @@ namespace ITMLib
 			ITMRenderState *renderState_freeview;
 
 		public:
+			// kevin
+			ITMMesh *mesh;
+
 			enum GetImageType
 			{
 				InfiniTAM_IMAGE_ORIGINAL_RGB,
@@ -90,11 +93,20 @@ namespace ITMLib
 			/// Gives access to the current camera pose and additional tracking information
 			ITMTrackingState* GetTrackingState(void) { return trackingState; }
 
+			// tejaswi
+			/// Gives access to the current rendering state
+			ITMRenderState* GetRenderingState(void) { return renderState_live; }
+			ITMRenderState* GetFreeviewRenderingState(void) { return renderState_freeview; }
+			IITMVisualisationEngine* GetVisualisationEngine(void) { return visualisationEngine; }
+			ITMDenseMapper<ITMVoxel,ITMVoxelIndex>* GetDenseMapper(void) { return denseMapper; }
+
 			/// Gives access to the internal world representation
 			ITMScene<ITMVoxel, ITMVoxelIndex>* GetScene(void) { return scene; }
 
 			/// Process a frame with rgb and depth images and optionally a corresponding imu measurement
 			void ProcessFrame(ITMUChar4Image *rgbImage, ITMShortImage *rawDepthImage, ITMIMUMeasurement *imuMeasurement = NULL);
+			void ProcessLastFrame(ITMUChar4Image *rgbImage, ITMShortImage *rawDepthImage, ITMIMUMeasurement *imuMeasurement = NULL);
+			void ProcessFirstFrame(ITMUChar4Image *rgbImage, ITMShortImage *rawDepthImage, ITMIMUMeasurement *imuMeasurement = NULL);
 
 			// Gives access to the data structure used internally to store any created meshes
 			ITMMesh* GetMesh(void) { return mesh; }

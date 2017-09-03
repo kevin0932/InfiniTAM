@@ -4,16 +4,12 @@
 
 #include "ImageSourceEngine.h"
 
-#ifdef COMPILE_WITH_RealSense
-
 #if (!defined USING_CMAKE) && (defined _MSC_VER)
 #ifdef _DEBUG
 #pragma comment(lib, "libpxcmd_d")
 #else
 #pragma comment(lib, "libpxcmd")
 #endif 
-#endif
-
 #endif
 
 namespace InfiniTAM
@@ -35,6 +31,9 @@ namespace InfiniTAM
 			void getImages(ITMUChar4Image *rgb, ITMShortImage *rawDepth);
 			Vector2i getDepthImageSize(void);
 			Vector2i getRGBImageSize(void);
+			// tejaswi
+			int GetCurrentFrameNo(void){ return -1; }
+
 		};
 	}
 }

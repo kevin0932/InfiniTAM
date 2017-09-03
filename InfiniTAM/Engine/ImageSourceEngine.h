@@ -20,6 +20,9 @@ namespace InfiniTAM
 			virtual void getImages(ITMUChar4Image *rgb, ITMShortImage *rawDepth) = 0;
 			virtual Vector2i getDepthImageSize(void) = 0;
 			virtual Vector2i getRGBImageSize(void) = 0;
+
+			// tejaswi
+			virtual int GetCurrentFrameNo(void) = 0;
 		};
 
 		class ImageFileReader : public ImageSourceEngine
@@ -35,15 +38,22 @@ namespace InfiniTAM
 			void loadIntoCache();
 			int cachedFrameNo;
 			int currentFrameNo;
+
+			// tejaswi (underwater)
+			bool isUnderwater;
 		public:
 
 			ImageFileReader(const char *calibFilename, const char *rgbImageMask, const char *depthImageMask);
+			ImageFileReader(const char *calibFilename, const char *rgbImageMask, const char *depthImageMask, bool underwaterFlag);
 			~ImageFileReader();
 
 			bool hasMoreImages(void);
 			void getImages(ITMUChar4Image *rgb, ITMShortImage *rawDepth);
 			Vector2i getDepthImageSize(void);
 			Vector2i getRGBImageSize(void);
+
+			// tejaswi
+			int GetCurrentFrameNo(void){ return cachedFrameNo; }
 		};
 
 		class CalibSource : public ImageSourceEngine
@@ -88,6 +98,7 @@ namespace InfiniTAM
 
 			Vector2i getDepthImageSize(void) { return imgSize; }
 			Vector2i getRGBImageSize(void) { return imgSize; }
+			int GetCurrentFrameNo(void){ return cachedFrameNo; }
 		};
 	}
 }

@@ -24,17 +24,20 @@ void ITMMeshingEngine_CPU<TVoxel, ITMVoxelBlockHash>::MeshScene(ITMMesh *mesh, c
 
 	int noTriangles = 0, noMaxTriangles = mesh->noMaxTriangles, noTotalEntries = scene->index.noTotalEntries;
 	float factor = scene->sceneParams->voxelSize;
+	std::cout<<"Debug: scene->sceneParams->voxelSize = "<<factor<<std::endl;
 
 	mesh->triangles->Clear();
 
 	for (int entryId = 0; entryId < noTotalEntries; entryId++)
 	{
 		Vector3i globalPos;
+		// std::cout<<"Debug: loop->entryId = "<<entryId<<std::endl;
 		const ITMHashEntry &currentHashEntry = hashTable[entryId];
 
 		if (currentHashEntry.ptr < 0) continue;
 
 		globalPos = currentHashEntry.pos.toInt() * SDF_BLOCK_SIZE;
+		// std::cout<<"Debug: loop->globalPos = "<<globalPos<<std::endl;
 
 		for (int z = 0; z < SDF_BLOCK_SIZE; z++) for (int y = 0; y < SDF_BLOCK_SIZE; y++) for (int x = 0; x < SDF_BLOCK_SIZE; x++)
 		{
@@ -42,6 +45,8 @@ void ITMMeshingEngine_CPU<TVoxel, ITMVoxelBlockHash>::MeshScene(ITMMesh *mesh, c
 			int cubeIndex = buildVertList(vertList, globalPos, Vector3i(x, y, z), localVBA, hashTable);
 			
 			if (cubeIndex < 0) continue;
+
+			// std::cout<<"Debug: cubeIndex(>=0) = "<<cubeIndex<<std::endl;
 
 			for (int i = 0; triangleTable[cubeIndex][i] != -1; i += 3)
 			{
@@ -55,6 +60,7 @@ void ITMMeshingEngine_CPU<TVoxel, ITMVoxelBlockHash>::MeshScene(ITMMesh *mesh, c
 	}
 
 	mesh->noTotalTriangles = noTriangles;
+	std::cout<<"Debug: mesh noTotalTriangles = "<<mesh->noTotalTriangles<<std::endl;
 }
 
 template<class TVoxel>

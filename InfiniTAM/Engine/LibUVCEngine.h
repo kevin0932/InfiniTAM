@@ -28,6 +28,9 @@ namespace InfiniTAM
 			void getImages(ITMUChar4Image *rgb, ITMShortImage *rawDepth);
 			Vector2i getDepthImageSize(void);
 			Vector2i getRGBImageSize(void);
+
+			// tejaswi
+			int GetCurrentFrameNo(void){ return -1; }
 		};
 	}
 }

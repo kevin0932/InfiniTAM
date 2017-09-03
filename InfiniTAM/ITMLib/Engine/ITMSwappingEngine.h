@@ -26,6 +26,7 @@ namespace ITMLib
 			virtual void IntegrateGlobalIntoLocal(ITMScene<TVoxel, TIndex> *scene, ITMRenderState *renderState) = 0;
 
 			virtual void SaveToGlobalMemory(ITMScene<TVoxel, TIndex> *scene, ITMRenderState *renderState) = 0;
+			// virtual void ForceSaveToGlobalMemory(ITMScene<TVoxel, TIndex> *scene, ITMRenderState *renderState) = 0;///////////////////////////////////////////////////////
 
 			virtual ~ITMSwappingEngine(void) { }
 		};

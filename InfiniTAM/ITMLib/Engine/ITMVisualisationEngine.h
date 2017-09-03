@@ -98,7 +98,8 @@ namespace ITMLib
 		template<class TVoxel, class TIndex>
 		class ITMVisualisationEngine : public IITMVisualisationEngine
 		{
-		protected:
+		protected:	////////////////////////////////////////////////////////////////////////
+		// public:	////////////////////////////////////////////////////////////////////////
 			const ITMScene<TVoxel, TIndex> *scene;
 			ITMVisualisationEngine(const ITMScene<TVoxel, TIndex> *scene)
 			{

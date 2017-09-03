@@ -48,13 +48,13 @@ void ITMDenseMapper<TVoxel,TIndex>::ResetScene(ITMScene<TVoxel,TIndex> *scene)
 }
 
 template<class TVoxel, class TIndex>
-void ITMDenseMapper<TVoxel,TIndex>::ProcessFrame(const ITMView *view, const ITMTrackingState *trackingState, ITMScene<TVoxel,TIndex> *scene, ITMRenderState *renderState)
+void ITMDenseMapper<TVoxel,TIndex>::ProcessFrame(const ITMView *view, const ITMTrackingState *trackingState, ITMScene<TVoxel,TIndex> *scene, ITMRenderState *renderState, bool fusionActive)
 {
 	// allocation
 	sceneRecoEngine->AllocateSceneFromDepth(scene, view, trackingState, renderState);
 
 	// integration
-	sceneRecoEngine->IntegrateIntoScene(scene, view, trackingState, renderState);
+	if(fusionActive) sceneRecoEngine->IntegrateIntoScene(scene, view, trackingState, renderState);
 
 	if (swappingEngine != NULL) {
 		// swapping: CPU -> GPU
@@ -71,3 +71,22 @@ void ITMDenseMapper<TVoxel,TIndex>::UpdateVisibleList(const ITMView *view, const
 }
 
 template class ITMLib::Engine::ITMDenseMapper<ITMVoxel, ITMVoxelIndex>;
+
+
+// //#############################################################################################################
+// template<class TVoxel, class TIndex>
+// void ITMDenseMapper<TVoxel,TIndex>::ProcessFrame_FusionDisabled(const ITMView *view, const ITMTrackingState *trackingState, ITMScene<TVoxel,TIndex> *scene, ITMRenderState *renderState)
+// {
+// 	// allocation
+// 	sceneRecoEngine->AllocateSceneFromDepth(scene, view, trackingState, renderState);
+
+// 	// // integration
+// 	// sceneRecoEngine->IntegrateIntoScene(scene, view, trackingState, renderState);
+
+// 	if (swappingEngine != NULL) {
+// 		// swapping: CPU -> GPU
+// 		swappingEngine->IntegrateGlobalIntoLocal(scene, renderState);
+// 		// swapping: GPU -> CPU
+// 		swappingEngine->SaveToGlobalMemory(scene, renderState);
+// 	}
+// }

@@ -79,17 +79,28 @@ void UIEngine::glutDisplayFunction()
 
 	glColor3f(1.0f, 0.0f, 0.0f); glRasterPos2f(0.85f, -0.962f);
 
-	char str[200]; sprintf(str, "%04.2lf", uiEngine->processedTime);
+	char str[300]; sprintf(str, "%04.2lf", uiEngine->processedTime);
 	safe_glutBitmapString(GLUT_BITMAP_HELVETICA_18, (const char*)str);
 
-	glRasterPos2f(-0.95f, -0.95f);
+	glRasterPos2f(-0.95f, -0.92f);
 	if (uiEngine->freeviewActive)
 	{
-		sprintf(str, "n - next frame \t b - all frames \t e/esc - exit \t f - follow camera \t c - colours (currently %s) \t t - turn fusion %s", uiEngine->colourModes[uiEngine->currentColourMode].name, uiEngine->intergrationActive ? "off" : "on");
+		sprintf(str, "n - next frame \t b - all frames \t e/esc - exit \t f - follow camera \t c - colours (currently %s) \t t - turn fusion %s \t r - %s recording", uiEngine->colourModes[uiEngine->currentColourMode].name, uiEngine->intergrationActive ? "off" : "on", uiEngine->isRecording ? "start":"stop");
 	}
 	else
 	{
-		sprintf(str, "n - next frame \t b - all frames \t e/esc - exit \t f - free viewpoint \t t - turn fusion %s", uiEngine->intergrationActive ? "off" : "on");
+		sprintf(str, "n - next frame \t b - all frames \t e/esc - exit \t f - free viewpoint \t t - turn fusion %s \t r - %s recording", uiEngine->intergrationActive ? "off" : "on", uiEngine->isRecording ? "stop":"start");
+	}
+	safe_glutBitmapString(GLUT_BITMAP_HELVETICA_12, (const char*)str);
+
+	glRasterPos2f(-0.95f, -0.98f);
+	if (uiEngine->freeviewActive)
+	{
+		sprintf(str,"w - save mesh \t s - save state \t v - save view pt cloud \t x - save all valid points \t z - save TSDF for MC", uiEngine->colourModes[uiEngine->currentColourMode].name, uiEngine->intergrationActive ? "off" : "on", uiEngine->isRecording ? "start" : "stop");
+	}
+	else
+	{
+		sprintf(str, "w - save mesh \t s - save state \t v - save view pt cloud \t x - save all valid points \t z - save TSDF for MC", uiEngine->intergrationActive ? "off" : "on", uiEngine->isRecording ? "stop" : "start");
 	}
 	safe_glutBitmapString(GLUT_BITMAP_HELVETICA_12, (const char*)str);
 
@@ -105,6 +116,13 @@ void UIEngine::glutIdleFunction()
 	{
 	case PROCESS_FRAME:
 		uiEngine->ProcessFrame(); uiEngine->processedFrameNo++;
+		// if(uiEngine->processedFrameNo==1) 
+			std::cout<<"frame "<<uiEngine->processedFrameNo-1<<"\t new pose_d: "<<uiEngine->mainEngine->GetTrackingState()->pose_d->GetM()<<std::endl;
+		if(uiEngine->processedFrameNo==1) 
+		{
+			uiEngine->SaveStartingFrame();
+			std::cout<<"Starting Frame (RGBD) saved!"<<std::endl;
+		}
 		uiEngine->mainLoopAction = PROCESS_PAUSED;
 		uiEngine->needsRefresh = true;
 		break;
@@ -147,6 +165,8 @@ void UIEngine::glutIdleFunction()
 
 void UIEngine::glutKeyUpFunction(unsigned char key, int x, int y)
 {
+	struct timespec start, finish;
+	double elapsed;
 	UIEngine *uiEngine = UIEngine::Instance();
 
 	switch (key)
@@ -159,7 +179,7 @@ void UIEngine::glutKeyUpFunction(unsigned char key, int x, int y)
 		printf("processing input source ...\n");
 		uiEngine->mainLoopAction = UIEngine::PROCESS_VIDEO;
 		break;
-	case 's':
+	case 'r':
 		if (uiEngine->isRecording)
 		{
 			printf("stopped recoding disk ...\n");
@@ -207,11 +227,86 @@ void UIEngine::glutKeyUpFunction(unsigned char key, int x, int y)
 		uiEngine->intergrationActive = !uiEngine->intergrationActive;
 		if (uiEngine->intergrationActive) uiEngine->mainEngine->turnOnIntegration();
 		else uiEngine->mainEngine->turnOffIntegration();
+		uiEngine->needsRefresh = true;
 		break;
 	case 'w':
 		printf("saving mesh to disk ...");
-		uiEngine->SaveSceneToMesh("mesh.stl");
+		// uiEngine->SaveSceneToMesh("mesh.stl");
+		uiEngine->SaveSceneToMesh("mesh.PLY");
 		printf(" done\n");
+		break;
+	case 'q':
+		printf("saving full tsdf ...");
+		char TSDFfileName[250];
+		// strcpy(TSDFfileName, const_cast<char*>(uiEngine->internalSettings->storageDirectory));
+		// strcat(TSDFfileName, "/");
+		// strcat(TSDFfileName, "tsdf_saved.txt");
+		strcpy(TSDFfileName, "tsdf_saved.txt");
+		clock_gettime(CLOCK_MONOTONIC, &start);
+		uiEngine->mainEngine->GetScene()->SaveTSDF2BinFile(TSDFfileName, false);
+		clock_gettime(CLOCK_MONOTONIC, &finish);
+		elapsed = (finish.tv_sec - start.tv_sec);
+		elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+		std::cout<<"time used for saving tsdf (txt) = "<<elapsed<<std::endl;
+		clock_gettime(CLOCK_MONOTONIC, &start);
+		uiEngine->mainEngine->GetScene()->SaveTSDF2BinFile(TSDFfileName, true);
+		clock_gettime(CLOCK_MONOTONIC, &finish);
+		elapsed = (finish.tv_sec - start.tv_sec);
+		elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+		std::cout<<"time used for saving tsdf (bin) = "<<elapsed<<std::endl;
+		char HashTablefileName[250];
+		// strcpy(HashTablefileName, const_cast<char*>(uiEngine->internalSettings->storageDirectory));
+		// strcat(HashTablefileName, "/");
+		// strcat(HashTablefileName, "hashtable_saved.txt");
+		strcpy(HashTablefileName, "hashtable_saved.txt");
+		clock_gettime(CLOCK_MONOTONIC, &start);
+		uiEngine->mainEngine->GetScene()->SaveHashTable2File(HashTablefileName, false);
+		clock_gettime(CLOCK_MONOTONIC, &finish);
+		elapsed = (finish.tv_sec - start.tv_sec);
+		elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+		std::cout<<"time used for saving hashtable (txt) = "<<elapsed<<std::endl;
+		clock_gettime(CLOCK_MONOTONIC, &start);
+		uiEngine->mainEngine->GetScene()->SaveHashTable2File(HashTablefileName, true);
+		clock_gettime(CLOCK_MONOTONIC, &finish);
+		elapsed = (finish.tv_sec - start.tv_sec);
+		elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+		std::cout<<"time used for saving hashtable (bin) = "<<elapsed<<std::endl;
+		printf(" done\n");
+		break;
+	case 's':
+		printf("saving current state ...");
+		clock_gettime(CLOCK_MONOTONIC, &start);
+		uiEngine->SaveCurrentState();
+		clock_gettime(CLOCK_MONOTONIC, &finish);
+		elapsed = (finish.tv_sec - start.tv_sec);
+		elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+		std::cout<<"time used for saving sate = "<<elapsed<<std::endl;
+		printf(" done\n");
+		break;
+	case 'i':
+		printf("load pre-saved state ...");
+		clock_gettime(CLOCK_MONOTONIC, &start);
+		uiEngine->LoadCurrentState();
+		clock_gettime(CLOCK_MONOTONIC, &finish);
+		elapsed = (finish.tv_sec - start.tv_sec);
+		elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+		std::cout<<"time used for loading sate = "<<elapsed<<std::endl;
+		printf(" done\n");
+		char HashTable2Load[250];
+		// strcpy(HashTable2Load, const_cast<char*>(uiEngine->internalSettings->storageDirectory));
+		// strcat(HashTable2Load, "/");
+		// strcat(HashTable2Load, "hashtable_saved.txt");
+		strcpy(HashTable2Load, "hashtable_saved.txt");
+		clock_gettime(CLOCK_MONOTONIC, &start);
+		// uiEngine->mainEngine->GetScene()->LoadHashTableFromFile(HashTable2Load, false);
+		// uiEngine->mainEngine->GetScene()->LoadHashTableFromFile(HashTable2Load, true);
+		std::cout<<"debug: load hash table returned!"<<std::endl;
+		clock_gettime(CLOCK_MONOTONIC, &finish);
+		elapsed = (finish.tv_sec - start.tv_sec);
+		elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;
+		std::cout<<"time used for recovering hashtable = "<<elapsed<<std::endl;
+		uiEngine->mainLoopAction = PROCESS_PAUSED;
+		uiEngine->needsRefresh = true;
 		break;
 	default:
 		break;
@@ -220,6 +315,11 @@ void UIEngine::glutKeyUpFunction(unsigned char key, int x, int y)
 	if (uiEngine->freeviewActive) {
 		uiEngine->outImageType[0] = uiEngine->colourModes[uiEngine->currentColourMode].type;
 	}
+
+/////////////////////////////////////////////////////////////////////////////
+	// f (uiEngine->needsRefresh) {
+	// 	glutPostRedisplay();
+	// }i
 }
 
 void UIEngine::glutMouseButtonFunction(int button, int state, int x, int y)
@@ -313,6 +413,9 @@ void UIEngine::glutMouseMoveFunction(int x, int y)
 	}
 	default: break;
 	}
+
+	// std::cout<<"freeviewPose change: "<< freeviewPose.GetR() <<std::endl;
+	std::cout<<"freeviewPose change: "<< uiEngine->freeviewPose.GetM() <<std::endl;
 }
 
 void UIEngine::glutMouseWheelFunction(int button, int dir, int x, int y)
@@ -497,4 +600,112 @@ void UIEngine::Shutdown()
 	delete saveImage;
 	delete instance;
 	instance = NULL;
+}
+
+// tejaswi
+void UIEngine::SavePointCloudOfView(void)
+{
+	int frameIdx = -2;
+	utilsForVis.SavePointCloudOfView(frameIdx, mainEngine->GetTrackingState(), imageSource->getDepthImageSize());
+	return;
+}
+
+void UIEngine::SaveStartingFrame(void)
+{
+	char DepthfileName[250];
+  	// strcpy(DepthfileName, const_cast<char*>(internalSettings->storageDirectory));
+	// strcat(DepthfileName, "/");
+	// strcat(DepthfileName, "RawDepth_start.pgm");
+	strcpy(DepthfileName, "RawDepth_start.pgm");
+	SaveImageToFile(inputRawDepthImage, DepthfileName);
+
+	if (inputRGBImage->noDims != Vector2i(0,0)) {
+		char RGBfileName[250];
+		// strcpy(RGBfileName, const_cast<char*>(internalSettings->storageDirectory));
+		// strcat(RGBfileName, "/");
+		// strcat(RGBfileName, "RGB_start.ppm");
+		strcpy(RGBfileName, "RGB_start.ppm");
+		SaveImageToFile(inputRGBImage, RGBfileName);
+	}
+	return;
+}
+
+
+void UIEngine::SaveCurrentState(void)
+{
+	char StatefileName[250];
+  	// strcpy(StatefileName, const_cast<char*>(internalSettings->storageDirectory));
+	// strcat(StatefileName, "/");
+	// strcat(StatefileName, "SceneState_saved.txt");
+	strcpy(StatefileName, "SceneState_saved.txt");
+	// utilsForVis.SaveCurrentState(StatefileName, mainEngine->GetScene(), mainEngine->GetTrackingState(), mainEngine->GetRenderingState(),imageSource->getDepthImageSize());
+	utilsForVis.SaveCurrentState_CompleteInfo(StatefileName, mainEngine->GetScene(), mainEngine->GetTrackingState(), mainEngine->GetRenderingState(),imageSource->getDepthImageSize());
+
+	// ITMUChar4Image *inputRGBImage; ITMShortImage *inputRawDepthImage;
+	char DepthfileName[250];
+  	// strcpy(DepthfileName, const_cast<char*>(internalSettings->storageDirectory));
+	// strcat(DepthfileName, "/");
+	// strcat(DepthfileName, "RawDepth_Last.pgm");
+	strcpy(DepthfileName, "RawDepth_Last.pgm");
+	SaveImageToFile(inputRawDepthImage, DepthfileName);
+
+	if (inputRGBImage->noDims != Vector2i(0,0)) {
+		char RGBfileName[250];
+		// strcpy(RGBfileName, const_cast<char*>(internalSettings->storageDirectory));
+		// strcat(RGBfileName, "/");
+		// strcat(RGBfileName, "RGB_Last.ppm");
+		strcpy(RGBfileName, "RGB_Last.ppm");
+		SaveImageToFile(inputRGBImage, RGBfileName);
+	}
+
+	return;
+}
+
+void UIEngine::LoadCurrentState(void)
+{
+	// ITMDenseMapper<ITMVoxel,ITMVoxelIndex>* tmpDenseMapper = mainEngine->GetDenseMapper();
+	// ITMSceneReconstructionEngine<ITMVoxel,ITMVoxelIndex> * tmpSceRecoEngine = tmpDenseMapper->GetSceneRecoEngine();
+	// tmpSceRecoEngine->ResetScene(mainEngine->GetScene());
+
+	char DepthfileName[250];
+  	// strcpy(DepthfileName, const_cast<char*>(internalSettings->storageDirectory));
+	// strcat(DepthfileName, "/");
+	// strcat(DepthfileName, "RawDepth_Last.pgm");
+	strcpy(DepthfileName, "RawDepth_Last.pgm");
+	ReadImageFromFile(inputRawDepthImage, DepthfileName);
+
+	if (inputRGBImage->noDims != Vector2i(0,0)) {
+		char RGBfileName[250];
+		// strcpy(RGBfileName, const_cast<char*>(internalSettings->storageDirectory));
+		// strcat(RGBfileName, "/");
+		// strcat(RGBfileName, "RGB_Last.ppm");
+		strcpy(RGBfileName, "RGB_Last.ppm");
+		ReadImageFromFile(inputRGBImage, RGBfileName);
+	}
+
+	// actual processing on the mainEngine
+	if (imuSource != NULL) mainEngine->ProcessLastFrame(inputRGBImage, inputRawDepthImage, inputIMUMeasurement);
+	else mainEngine->ProcessLastFrame(inputRGBImage, inputRawDepthImage);
+#ifndef COMPILE_WITHOUT_CUDA
+	ITMSafeCall(cudaThreadSynchronize());
+#endif
+
+
+	bool *boolTMP=false;
+	char StatefileName[250];
+  	// strcpy(StatefileName, const_cast<char*>(internalSettings->storageDirectory));
+	// strcat(StatefileName, "/");
+	// strcat(StatefileName, "SceneState_saved.txt");
+	strcpy(StatefileName, "SceneState_saved.txt");
+	utilsForVis.LoadCurrentState_CompleteInfo(StatefileName, mainEngine->GetScene(), mainEngine->GetTrackingState(), mainEngine->GetRenderingState(), boolTMP);
+
+	return;
+}
+
+
+void UIEngine::SaveTSDFforMC(void)
+{
+	int frameIdx = -2;
+	utilsForVis.SaveTSDFforMC(frameIdx, mainEngine->GetScene());
+	return;
 }

@@ -29,6 +29,8 @@
 #include "../../ORUtils/PlatformIndependence.h"
 #include "ITMMath.h"
 
+// #include "../../ORUtils/Vector.h"
+
 //////////////////////////////////////////////////////////////////////////
 // Voxel Hashing definition and helper functions
 //////////////////////////////////////////////////////////////////////////
@@ -43,6 +45,8 @@
 #define SDF_BUCKET_NUM 0x100000			// Number of Hash Bucket, should be 2^n and bigger than SDF_LOCAL_BLOCK_NUM, SDF_HASH_MASK = SDF_BUCKET_NUM - 1
 #define SDF_HASH_MASK 0xfffff			// Used for get hashing value of the bucket index,  SDF_HASH_MASK = SDF_BUCKET_NUM - 1
 #define SDF_EXCESS_LIST_SIZE 0x20000	// 0x20000 Size of excess list, used to handle collisions. Also max offset (unsigned short) value.
+
+// #define COMPILE_WITHOUT_CUDA	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
 // Voxel Hashing data structures
@@ -186,13 +190,14 @@ struct ITMVoxel_f
 /** This chooses the information stored at each voxel. At the moment, valid
     options are ITMVoxel_s, ITMVoxel_f, ITMVoxel_s_rgb and ITMVoxel_f_rgb 
 */
-typedef ITMVoxel_s ITMVoxel;
+// typedef ITMVoxel_s ITMVoxel;
+typedef ITMVoxel_s_rgb ITMVoxel;
 
 /** This chooses the way the voxels are addressed and indexed. At the moment,
     valid options are ITMVoxelBlockHash and ITMPlainVoxelArray.
 */
 typedef ITMLib::Objects::ITMVoxelBlockHash ITMVoxelIndex;
-//typedef ITMLib::Objects::ITMPlainVoxelArray ITMVoxelIndex;
+// typedef ITMLib::Objects::ITMPlainVoxelArray ITMVoxelIndex;
 
 #include "../../ORUtils/Image.h"
 

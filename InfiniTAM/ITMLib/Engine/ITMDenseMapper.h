@@ -29,8 +29,14 @@ namespace ITMLib
 		public:
 			void ResetScene(ITMScene<TVoxel,TIndex> *scene);
 
+			// kevin
+			ITMSceneReconstructionEngine<TVoxel,TIndex> * GetSceneRecoEngine(void) { return sceneRecoEngine; }
+			// void ProcessFrame_FusionDisabled(const ITMView *view, const ITMTrackingState *trackingState, ITMScene<TVoxel,TIndex> *scene, ITMRenderState *renderState_live);
+
+
 			/// Process a single frame
-			void ProcessFrame(const ITMView *view, const ITMTrackingState *trackingState, ITMScene<TVoxel,TIndex> *scene, ITMRenderState *renderState_live);
+			void ProcessFrame(const ITMView *view, const ITMTrackingState *trackingState, ITMScene<TVoxel,TIndex> *scene, ITMRenderState *renderState_live, bool fusionActive);
+			// void ProcessFrame(const ITMView *view, const ITMTrackingState *trackingState, ITMScene<TVoxel,TIndex> *scene, ITMRenderState *renderState_live);
 
 			/// Update the visible list (this can be called to update the visible list when fusion is turned off)
 			void UpdateVisibleList(const ITMView *view, const ITMTrackingState *trackingState, ITMScene<TVoxel,TIndex> *scene, ITMRenderState *renderState);

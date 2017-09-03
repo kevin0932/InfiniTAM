@@ -71,9 +71,21 @@ namespace ITMLib
 					indexData->GetData(MEMORYDEVICE_CPU)->size.z;
 			}
 
-			const Vector3i getVolumeSize(void) { return indexData->GetData(MEMORYDEVICE_CPU)->size; }
+			// const Vector3i getVolumeSize(void) { return indexData->GetData(MEMORYDEVICE_CPU)->size; }
+			const Vector3i getVolumeSize(void) const { return indexData->GetData(MEMORYDEVICE_CPU)->size; }//////////////////////////////////////////////
+			const Vector3i getVolumeSize(void) { return indexData->GetData(MEMORYDEVICE_CPU)->size; }//////////////////////////////////////////////
+
+			const Vector3i getOffset(void) const { return indexData->GetData(MEMORYDEVICE_CPU)->offset; }//////////////////////////////////////////////
+			const Vector3i getOffset(void) { return indexData->GetData(MEMORYDEVICE_CPU)->offset; }	//////////////////////////////////////////////
 
 			const IndexData* getIndexData(void) const { return indexData->GetData(memoryType); }
+			IndexData* getIndexData(MemoryDeviceType type) const { return indexData->GetData(type); }//////////////////////////////////////////////
+			
+			void UpdateDeviceDataWithHostData(void)
+			{
+				indexData->UpdateDeviceFromHost();
+				return;
+			}
 
 #ifdef COMPILE_WITH_METAL
 			const void *getIndexData_MB() const { return indexData->GetMetalBuffer(); }

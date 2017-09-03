@@ -1,7 +1,13 @@
 // Copyright 2014-2015 Isis Innovation Limited and the authors of InfiniTAM
+#include "opencv2/highgui/highgui.hpp"
+#include <iostream>
+// using namespace cv;
+// using namespace std;
+
 
 #pragma once
 
+#include "../ITMLib/Engine/ITMVisualisationEngine.h"	//Kevin ##############################################################################
 #include "../ITMLib/Engine/ITMMainEngine.h"
 #include "../ITMLib/Utils/ITMLibSettings.h"
 #include "../Utils/FileUtils.h"
@@ -9,6 +15,11 @@
 
 #include "ImageSourceEngine.h"
 #include "IMUSourceEngine.h"
+
+//tejaswi
+#include "../ITMLib/Utils/UtilsForVisualisation.h"
+#include <time.h>
+////////////////////////
 
 #include <vector>
 
@@ -95,6 +106,14 @@ namespace InfiniTAM
 			void GetScreenshot(ITMUChar4Image *dest) const;
 			void SaveScreenshot(const char *filename) const;
 			void SaveSceneToMesh(const char *filename) const;
+
+			//tejaswi
+			ITMLib::UtilsForVis<ITMVoxel, ITMVoxelIndex> utilsForVis;
+			void SavePointCloudOfView(void);
+			void SaveStartingFrame(void);
+			void SaveCurrentState(void);
+			void LoadCurrentState(void);
+			void SaveTSDFforMC(void);
 		};
 	}
 }

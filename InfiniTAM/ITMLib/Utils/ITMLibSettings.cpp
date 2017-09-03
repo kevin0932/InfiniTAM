@@ -31,6 +31,8 @@ ITMLibSettings::ITMLibSettings(void)
 	//deviceType = DEVICE_CPU;
 
 	/// enables or disables swapping. HERE BE DRAGONS: It should work, but requires more testing
+	// useSwapping = false;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	useSwapping = false;
 
 	/// enables or disables approximate raycast
@@ -39,11 +41,11 @@ ITMLibSettings::ITMLibSettings(void)
 	/// enable or disable bilateral depth filtering;
 	useBilateralFilter = false;
 
-	//trackerType = TRACKER_COLOR;
-	trackerType = TRACKER_ICP;
-	//trackerType = TRACKER_REN;
-	//trackerType = TRACKER_IMU;
-	//trackerType = TRACKER_WICP;
+	// trackerType = TRACKER_COLOR;
+	trackerType = TRACKER_ICP;	// Default tracker type is ICP
+	// trackerType = TRACKER_REN;
+	// trackerType = TRACKER_IMU;
+	// trackerType = TRACKER_WICP;
 
 	/// model the sensor noise as  the weight for weighted ICP
 	modelSensorNoise = false;

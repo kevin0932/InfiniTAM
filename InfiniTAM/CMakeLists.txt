@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.1)
+#cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 2.8)
 project(InfiniTAM)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
@@ -13,6 +14,14 @@ endmacro()
 
 find_package(GLUT REQUIRED)
 find_package(OpenGL REQUIRED)
+
+#find_package(OpenCV 2.4 REQUIRED)############################################
+##CANONIFY_BOOL(OPENCV_FOUND)
+#message(STATUS "OpenCV found: ${OPENCV_FOUND}")
+find_package(OpenCV EXACT 2.4.11 CONFIG COMPONENTS core features2d viz REQUIRED)
+CANONIFY_BOOL(OpenCV_FOUND)
+message(STATUS "OpenCV2 found: " ${OpenCV_FOUND})
+
 
 find_package(CUDA QUIET)
 CANONIFY_BOOL(CUDA_FOUND)
@@ -73,6 +82,10 @@ ELSE()
   add_definitions(-DCOMPILE_WITHOUT_CUDA)
 ENDIF()
 
+
+find_package( Boost REQUIRED COMPONENTS program_options regex )
+include_directories( ${Boost_INCLUDE_DIRS} )
+
 add_executable(InfiniTAM_cli InfiniTAM_cli.cpp)
 target_link_libraries(InfiniTAM_cli Engine)
 target_link_libraries(InfiniTAM_cli Utils)
@@ -80,3 +93,11 @@ add_executable(InfiniTAM InfiniTAM.cpp)
 target_link_libraries(InfiniTAM Engine)
 target_link_libraries(InfiniTAM Utils)
 
+
+
+#find_package( Boost REQUIRED COMPONENTS program_options regex )
+#include_directories( ${Boost_INCLUDE_DIRS} )
+#add_executable( run main.cpp ) # Example application based on main.cpp
+
+## Alternatively you could use ${Boost_LIBRARIES} here.
+#target_link_libraries( run ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_REGEX_LIBRARY} )

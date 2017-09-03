@@ -11,6 +11,10 @@
 #include "Engine/RealSenseEngine.h"
 #include "Engine/PicoFlexxEngine.h"
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 using namespace InfiniTAM::Engine;
 
 /** Create a default source of depth images from a list of command line
@@ -83,16 +87,16 @@ static void CreateDefaultImageSource(ImageSourceEngine* & imageSource, IMUSource
 			imageSource = NULL;
 		}
 	}
-	if (imageSource == NULL)
-	{
-		printf("trying PMD PicoFlexx device\n");
-		imageSource = new PicoFlexxEngine(calibFile);
-		if (imageSource->getDepthImageSize().x == 0)
-		{
-			delete imageSource;
-			imageSource = NULL;
-		}
-	}
+	// if (imageSource == NULL)
+	// {
+	// 	printf("trying PMD PicoFlexx device\n");
+	// 	imageSource = new PicoFlexxEngine(calibFile);
+	// 	if (imageSource->getDepthImageSize().x == 0)
+	// 	{
+	// 		delete imageSource;
+	// 		imageSource = NULL;
+	// 	}
+	// }
 
 	// this is a hack to ensure backwards compatibility in certain configurations
 	if (imageSource == NULL) return;

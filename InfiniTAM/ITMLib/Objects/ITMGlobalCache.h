@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <iostream>
 
 #include "../Utils/ITMLibDefines.h"
 #ifndef COMPILE_WITHOUT_CUDA
@@ -47,6 +48,7 @@ namespace ITMLib
 			{	
 				hasStoredData = (bool*)malloc(noTotalEntries * sizeof(bool));
 				storedVoxelBlocks = (TVoxel*)malloc(noTotalEntries * sizeof(TVoxel) * SDF_BLOCK_SIZE3);
+				// memset(storedVoxelBlocks, 1, noTotalEntries * sizeof(TVoxel) * SDF_BLOCK_SIZE3);/////////////////////////////////////////////////////////////////////
 				memset(hasStoredData, 0, noTotalEntries);
 
 				swapStates_host = (ITMHashSwapState *)malloc(noTotalEntries * sizeof(ITMHashSwapState));
@@ -86,6 +88,46 @@ namespace ITMLib
 
 				fclose(f);
 			}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			// get the pointer to all stored voxel blocks via GlobalCache!
+			// const TVoxel *GetAllStoredVoxelBlock(void) const { return storedVoxelBlocks; }
+			inline TVoxel *GetAllStoredVoxelBlock(void) const { return storedVoxelBlocks; }
+			// inline TVoxel *GetVoxelBlocks(void) { return voxelBlocks->GetData(memoryType); }
+			// inline const TVoxel *GetVoxelBlocks(void) const { return voxelBlocks->GetData(memoryType); }
+
+
+			void SaveToBinFile(char *fileName, const ITMSceneParams *sceneParams) const
+			{
+				TVoxel *storedData = storedVoxelBlocks;
+
+				std::cout<<"TVoxel *storedData: "<<storedData<<std::endl;
+				// std::cout<<"storedData[0]: "<<storedData[0]<<std::endl;
+				
+				std::cout<<"noTotalEntries: "<<noTotalEntries<<std::endl;
+				// std::cout<<"storedData[0].sdf: "<<storedData[0].sdf<<std::endl;
+				// std::cout<<"storedData[0].clr: "<<storedData[0].clr<<std::endl;
+				// std::cout<<"storedData[0].w_depth: "<<storedData[0].w_depth<<std::endl;
+				// std::cout<<"storedData[0].w_color: "<<storedData[0].w_color<<std::endl;
+				for (int i = 0; i < noTotalEntries*SDF_BLOCK_SIZE3; i++)
+				{
+					// std::cout<<"storedData["<<i<<"].sdf: "<<storedData[i].sdf<<std::endl;
+					// storedData += 1;
+				}
+
+				// FILE *f = fopen(fileName, "wb");
+
+				// fwrite(hasStoredData, sizeof(bool), noTotalEntries, f);
+				// for (int i = 0; i < noTotalEntries; i++)
+				// {
+				// 	fwrite(storedData, sizeof(TVoxel) * SDF_BLOCK_SIZE3, 1, f);
+				// 	storedData += SDF_BLOCK_SIZE3;
+				// }
+
+				// fclose(f);
+			}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 			void ReadFromFile(char *fileName)
 			{
