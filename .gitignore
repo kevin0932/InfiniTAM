@@ -4,6 +4,7 @@
 *.sdf
 *.suo
 *.swp
+/InfiniTAM/release/
 x64/
 /InfiniTAM/build/
 /InfiniTAM/buildx/
